@@ -4,16 +4,14 @@ Testing SSH connectivity using Password and Key based auth
 
 Setup Requirements:
 
-A server running SSH, with both password and key-based authentication methods enabled.
-A Linux client system with Python3 and Paramiko library installed, and access to both valid passwords and private keys for the server.
+A server running SSH, with password and key-based authentication methods enabled.
+A Linux client system with Python3 and Paramiko library installed (optional), and access to both valid passwords and private keys for the server.
 If use of standard libraries only, use subprocess to call ssh. I prefer external library use to save development cost.
 
 Test Procedure:
 
 Connect to the server using a valid username and password. 
 Confirm connection is valid by running a command.
-If we do not already have a given private key, generate and set up ssh key pair on server and download private key. (subprocess ssh-keygen)
-Set up generated key for ssh authentication.
 Disconnect from the server.
 Connect to the server using a valid username and the associated private key. 
 Confirm valid connection again.
