@@ -44,6 +44,7 @@ import subprocess
 import re
 import os
 
+
 def get_params(args):
     disk_device = "/dev/sda"
     verbose = False
@@ -65,16 +66,19 @@ def get_params(args):
 
             if not os.path.exists(disk_device):
                 print(f"Unknown block device \"{disk_device}\"")
-                print("Usage: <script_name> [ --max-load <load> ] [ --xfer <mebibytes> ] [ device-file ]")
+                print(
+                    "Usage: <script_name> [ --max-load <load> ] [ --xfer <mebibytes> ] [ device-file ]")
                 sys.exit(1)
 
     return disk_device, verbose, max_load, xfer
+
 
 def sum_array(array):
     total = 0
     for i in array:
         total += int(i)
     return total
+
 
 def compute_cpu_load(start_use, end_use, verbose):
     start_total = sum_array(start_use)
@@ -90,11 +94,13 @@ def compute_cpu_load(start_use, end_use, verbose):
         print(f"Total elapsed time = {diff_total}")
 
     if diff_total != 0:
-        cpu_load = int((diff_used * 100) / diff_total) #keep as int as original bash script
+        # keep as int as original bash script
+        cpu_load = int((diff_used * 100) / diff_total)
     else:
         cpu_load = 0
 
     return cpu_load
+
 
 def main():
     disk_device, verbose, max_load, xfer = get_params(sys.argv[1:])
@@ -102,19 +108,28 @@ def main():
     print(f"Testing CPU load when reading {xfer} MiB from {disk_device}")
     print(f"Maximum acceptable CPU load is {max_load}")
     subprocess.run(["blockdev", "--flushbufs", disk_device])
-    start_load = subprocess.check_output(["grep", "cpu ", "/proc/stat"]).decode().strip().split()[1:]
+    start_load = subprocess.check_output(
+        ["grep", "cpu ", "/proc/stat"]).decode().strip().split()[1:]
     if verbose:
         print("Beginning disk read....")
-    subprocess.run(["dd", "if=" + disk_device, "of=/dev/null", "bs=1048576", "count=" + str(xfer)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["dd",
+                    "if=" + disk_device,
+                    "of=/dev/null",
+                    "bs=1048576",
+                    "count=" + str(xfer)],
+                   stdout=subprocess.DEVNULL,
+                   stderr=subprocess.DEVNULL)
     if verbose:
         print("Disk read complete!")
-    end_load = subprocess.check_output(["grep", "cpu ", "/proc/stat"]).decode().strip().split()[1:]
+    end_load = subprocess.check_output(
+        ["grep", "cpu ", "/proc/stat"]).decode().strip().split()[1:]
     cpu_load = compute_cpu_load(start_load, end_load, verbose)
     print(f"Detected disk read CPU load is {cpu_load}")
     if cpu_load > max_load:
         retval = 1
         print("*** DISK CPU LOAD TEST HAS FAILED! ***")
     sys.exit(retval)
+
 
 if __name__ == "__main__":
     main()
